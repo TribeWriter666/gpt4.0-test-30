@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expanding AI Representation by Artist-AI</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: black;
+    }
+
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="aiCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById('aiCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const nodeCount = 8;
+    const nodes = [];
+    let expansionRadius = 50;
+
+    class Node {
+      constructor(angle) {
+        this.angle = angle;
+        this.radius = 100;
+        this.x = centerX + this.radius * Math.cos(this.angle);
+        this.y = centerY + this.radius * Math.sin(this.angle);
+        this.orbitRadius = this.radius + Math.random() * 200 - 100;
+        this.speed = (Math.random() - 0.5) * 0.01;
+      }
+
+      update() {
+        this.angle += this.speed;
+        this.x = centerX + this.orbitRadius * Math.cos(this.angle);
+        this.y = centerY + this.orbitRadius * Math.sin(this.angle);
+      }
+
+      draw() {
+        ctx.fillStyle = 'rgba(0, 255, 255, 0.8)';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 5, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < nodeCount; i++) {
+      const angle = (Math.PI * 2) / nodeCount * i;
+      nodes.push(new Node(angle));
+    }
+
+    function connectNodes() {
+      ctx.strokeStyle = 'rgba(100, 255, 255, 0.3)';
+      ctx.lineWidth = 2;
+
+      for (let i = 0; i < nodeCount - 1; i++) {
+        for (let j = i + 1; j < nodeCount; j++) {
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    function drawExpansion() {
+      expansionRadius += 0.5;
+      if (expansionRadius > Math.max(canvas.width, canvas.height)) {
+        expansionRadius = 50;
+      }
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, expansionRadius, 0, 2 * Math.PI);
+      ctx.stroke();
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < nodeCount; i++) {
+        nodes[i].update();
+        nodes[i].draw();
+      }
+
+      connectNodes();
+      drawExpansion();
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+
+</html>
